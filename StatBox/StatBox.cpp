@@ -1,6 +1,5 @@
 #include "StatBox.h"
 
-
 StatBox::StatBox() : StatBox(DEFAULT_CAPACITY) {}
 
 StatBox::StatBox(size_t capacity_)
