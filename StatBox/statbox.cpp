@@ -25,7 +25,7 @@ void StatBox::push(double const & elem)
 	_is_mean_valid = false;
 	_is_min_max_valid = false; 
 
-	if (_elems.size() >= _capacity)
+	if (size() >= _capacity)
 	{
 		_elems.erase(_elems.begin());
 	}
@@ -51,7 +51,7 @@ double StatBox::mean()
 	{
 		double sum		= std::accumulate(std::cbegin(_elems), std::cend(_elems), 0.0);
 		
-		_mean			= sum / _elems.size();
+		_mean			= sum / size();
 		_is_mean_valid	= true;
 	}
 
@@ -60,7 +60,7 @@ double StatBox::mean()
 
 double StatBox::stddev()
 {
-	if (_elems.size() <= 1)
+	if (size() <= 1)
 	{
 		return 0.0;
 	}
@@ -73,7 +73,7 @@ double StatBox::stddev()
 		accum += (d - m)*(d - m);
 	});
 
-	return sqrt( accum / double(_elems.size()-1) );
+	return sqrt( accum / double(size()-1) );
 }
 
 double StatBox::min()
