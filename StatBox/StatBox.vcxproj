@@ -111,10 +111,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="StatBox.h" />
+    <ClInclude Include="statbox.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="StatBox.cpp" />
+    <ClCompile Include="statbox.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

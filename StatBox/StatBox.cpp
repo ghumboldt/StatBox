@@ -1,4 +1,4 @@
-#include "StatBox.h"
+#include "statbox.h"
 
 StatBox::StatBox() : StatBox(DEFAULT_CAPACITY) {}
 
