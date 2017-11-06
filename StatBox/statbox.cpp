@@ -31,7 +31,7 @@ void StatBox::push(double const & elem)
 	_is_mean_valid = false;
 	_is_min_max_valid = false; 
 
-	if (size() >= _capacity)
+	if (get_num_values() >= _capacity)
 	{
 		_elems.erase(_elems.begin());
 	}
@@ -46,32 +46,32 @@ void StatBox::reset()
 	_is_min_max_valid = false;
 }
 
-double StatBox::last()
+double StatBox::get_last_value()
 {
 	return _elems.back();
 }
 
-double StatBox::mean()
+double StatBox::get_mean()
 {
 	if (!_is_mean_valid)
 	{
 		double sum		= std::accumulate(std::cbegin(_elems), std::cend(_elems), 0.0);
 		
-		_mean			= sum / size();
+		_mean			= sum / get_num_values();
 		_is_mean_valid	= true;
 	}
 
 	return _mean;
 }
 
-double StatBox::stddev()
+double StatBox::get_std()
 {
-	if (size() <= 1)
+	if (get_num_values() <= 1)
 	{
 		return 0.0;
 	}
 
-	double m = mean();
+	double m = get_mean();
 	double accum = 0.0;
 
 	std::for_each(std::cbegin(_elems), std::cend(_elems), [&](const double d)
@@ -79,28 +79,28 @@ double StatBox::stddev()
 		accum += (d - m)*(d - m);
 	});
 
-	return sqrt( accum / double(size()-1) );
+	return sqrt( accum / double(get_num_values()-1) );
 }
 
-double StatBox::min()
+double StatBox::get_min()
 {
 	calc_min_max();
 	return _min;
 }
 
-double StatBox::max()
+double StatBox::get_max()
 {
 	calc_min_max();
 	return _max;
 }
 
-size_t StatBox::size() { return _elems.size(); }
+size_t StatBox::get_num_values() { return _elems.size(); }
 
-std::string StatBox::name() { return _name; }
-std::string StatBox::unit() { return _unit; }
+std::string StatBox::get_name() { return _name; }
+std::string StatBox::get_unit() { return _unit; }
 
 
-std::string StatBox::format()
+std::string StatBox::get_string()
 {
 	ostringstream os;
 
@@ -110,10 +110,10 @@ std::string StatBox::format()
 	}
 
 	os << std::setprecision(_num_precision)
-		<< name() << " = " << std::setw(_num_width) << mean()
-		<< " +- " << std::setw(_num_width) << stddev() << " " << unit() << " "
-		<< "(" << std::setw(_num_width) << min()
-		<< " to " << std::setw(_num_width) << max() << " " << unit() << ")";
+		<< get_name() << " = " << std::setw(_num_width) << get_mean()
+		<< " +- " << std::setw(_num_width) << get_std() << " " << get_unit() << " "
+		<< "(" << std::setw(_num_width) << get_min()
+		<< " to " << std::setw(_num_width) << get_max() << " " << get_unit() << ")";
 
 	return os.str();
 }

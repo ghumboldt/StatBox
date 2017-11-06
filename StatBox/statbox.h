@@ -17,30 +17,38 @@ using namespace std;
 class StatBox
 {
 public:
+
+	// Constructors
+
 	StatBox();
 	StatBox(std::string name_);
 	StatBox(std::string name_, std::string unit_);
 	StatBox(std::string name_, std::string unit_, size_t capacity_);
 	~StatBox();
 
-	void push(double const&);
+	// Methods
+
+	void push(double const& value_);
 	void reset();
 
-	double last();
-	double mean();
-	double stddev();
-	double min();
-	double max();
+	// Getters
 
-	size_t size();
+	double get_last_value();
+	double get_mean();
+	double get_std();
+	double get_min();
+	double get_max();
+	size_t get_num_values();
+	std::string get_string();
+	std::string get_name();
+	std::string get_unit();
 
-	std::string format();
-	std::string name();
-	std::string unit();
+	// Setters
 
 	void set_format(int format_width_, int format_precision_);
 
 private:
+
 	size_t _capacity;
 	bool _is_mean_valid;
 	bool _is_min_max_valid;
