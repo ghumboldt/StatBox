@@ -10,7 +10,7 @@ namespace StatBoxTests
 	TEST_CLASS(UnitTests)
 	{
 	public:
-		
+
 		TEST_METHOD(TestStdDev)
 		{
 			StatBox* stats = new StatBox(3);
@@ -20,6 +20,8 @@ namespace StatBoxTests
 			stats->push(5.0);
 
 			Assert::AreEqual(2.0, stats->stddev());
+
+			Logger::WriteMessage(stats->to_string().c_str());
 		}
 
 		TEST_METHOD(TestMeanMinMax)

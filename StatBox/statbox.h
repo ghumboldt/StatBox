@@ -2,6 +2,9 @@
 #include <vector>
 #include <numeric>
 #include <algorithm>
+#include <string>
+#include <iostream>
+#include <sstream>
 #include <math.h>
 
 #define DEFAULT_CAPACITY 100
@@ -25,6 +28,9 @@ public:
 	double max();
 
 	size_t size();
+
+	std::string to_string();
+
 
 private:
 	size_t _capacity;

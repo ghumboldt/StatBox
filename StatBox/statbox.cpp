@@ -93,6 +93,14 @@ size_t StatBox::size()
 	return _elems.size();
 }
 
+std::string StatBox::to_string()
+{
+	ostringstream os;
+	os << "mean = " << mean() << " +- " << stddev() << ", min = " << min() << ", max = " << max() << ", computed from " << size() << " elements.";
+
+	return os.str();
+}
+
 void StatBox::calc_min_max()
 {
 	if (!_is_min_max_valid)
