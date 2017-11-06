@@ -11,22 +11,70 @@ namespace StatBoxTests
 	{
 	public:
 
+		TEST_METHOD(TestEmptyConstructor)
+		{
+			StatBox* stats = new StatBox();
+
+			Assert::AreEqual(DEFAULT_NAME, stats->name().c_str());
+			Assert::AreEqual(DEFAULT_UNIT, stats->unit().c_str());
+			Assert::AreEqual(size_t(0), stats->size());
+		}
+
+		TEST_METHOD(TestConstructorWithName)
+		{
+			StatBox* stats = new StatBox("Temperature");
+
+			Assert::AreEqual("Temperature", stats->name().c_str());
+			Assert::AreEqual(DEFAULT_UNIT, stats->unit().c_str());
+			Assert::AreEqual(size_t(0), stats->size());
+		}
+
+		TEST_METHOD(TestConstructorWithNameAndUnit)
+		{
+			StatBox* stats = new StatBox("Temperature", "Kelvin");
+
+			Assert::AreEqual("Temperature", stats->name().c_str());
+			Assert::AreEqual("Kelvin", stats->unit().c_str());
+			Assert::AreEqual(size_t(0), stats->size());
+		}
+
+		TEST_METHOD(TestToString)
+		{
+			StatBox* stats = new StatBox("Speed", "m/s", 3);
+
+			for (int k = 2; k >= 0; k--)
+			{
+				stats->set_format(k * 5, k * 2);
+
+				stats->push(10.0 / 3.0);
+				Logger::WriteMessage(stats->format().c_str());
+
+				stats->push(3.9);
+				Logger::WriteMessage(stats->format().c_str());
+
+				stats->push(65.7);
+				Logger::WriteMessage(stats->format().c_str());
+
+				stats->reset();
+			}
+
+			Assert::IsTrue(true);
+		}
+
 		TEST_METHOD(TestStdDev)
 		{
-			StatBox* stats = new StatBox(3);
+			StatBox* stats = new StatBox("MyValue", "", 3);
 
-			stats->push(1.0);
+			stats->push(1);
 			stats->push(3.0);
-			stats->push(5.0);
+			stats->push(5);
 
 			Assert::AreEqual(2.0, stats->stddev());
-
-			Logger::WriteMessage(stats->to_string().c_str());
 		}
 
 		TEST_METHOD(TestMeanMinMax)
 		{
-			StatBox* stats = new StatBox(3);
+			StatBox* stats = new StatBox("MyValue", "", 3);
 
 			stats->push(3.0);
 			Assert::AreEqual(3.0, stats->mean());
@@ -57,7 +105,7 @@ namespace StatBoxTests
 
 		TEST_METHOD(TestLastSizeReset)
 		{
-			StatBox* stats = new StatBox(3);
+			StatBox* stats = new StatBox("MyValue", "", 3);
 
 			Assert::AreEqual(size_t(0), stats->size());
 

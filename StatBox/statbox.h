@@ -4,10 +4,13 @@
 #include <algorithm>
 #include <string>
 #include <iostream>
+#include <iomanip> 
 #include <sstream>
 #include <math.h>
 
 #define DEFAULT_CAPACITY 100
+#define DEFAULT_NAME "Value"
+#define DEFAULT_UNIT ""
 
 using namespace std;
 
@@ -15,7 +18,9 @@ class StatBox
 {
 public:
 	StatBox();
-	StatBox(size_t capacity_);
+	StatBox(std::string name_);
+	StatBox(std::string name_, std::string unit_);
+	StatBox(std::string name_, std::string unit_, size_t capacity_);
 	~StatBox();
 
 	void push(double const&);
@@ -29,8 +34,11 @@ public:
 
 	size_t size();
 
-	std::string to_string();
+	std::string format();
+	std::string name();
+	std::string unit();
 
+	void set_format(int format_width_, int format_precision_);
 
 private:
 	size_t _capacity;
@@ -40,7 +48,12 @@ private:
 	double _mean;
 	double _min, _max;
 
+	int _num_width;
+	int _num_precision;
+
 	std::vector<double> _elems;
+	std::string _name;
+	std::string _unit;
 
 	void calc_min_max();
 };

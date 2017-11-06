@@ -1,9 +1,15 @@
 #include "statbox.h"
 
-StatBox::StatBox() : StatBox(DEFAULT_CAPACITY) {}
+StatBox::StatBox() : StatBox(DEFAULT_NAME, DEFAULT_UNIT, DEFAULT_CAPACITY) {}
 
-StatBox::StatBox(size_t capacity_)
+StatBox::StatBox(std::string name_) : StatBox(name_, DEFAULT_UNIT, DEFAULT_CAPACITY) {}
+
+StatBox::StatBox(std::string name_, std::string unit_) : StatBox(name_, unit_, DEFAULT_CAPACITY) {}
+
+StatBox::StatBox(std::string name_, std::string unit_, size_t capacity_)
 {
+	_name = name_;
+	_unit = unit_;
 	_capacity = capacity_;
 
 	_is_mean_valid = false;
@@ -88,17 +94,34 @@ double StatBox::max()
 	return _max;
 }
 
-size_t StatBox::size()
-{
-	return _elems.size();
-}
+size_t StatBox::size() { return _elems.size(); }
 
-std::string StatBox::to_string()
+std::string StatBox::name() { return _name; }
+std::string StatBox::unit() { return _unit; }
+
+
+std::string StatBox::format()
 {
 	ostringstream os;
-	os << "mean = " << mean() << " +- " << stddev() << ", min = " << min() << ", max = " << max() << ", computed from " << size() << " elements.";
+
+	if (_num_precision != 0 && _num_width != 0)
+	{
+		os.setf(ios::fixed, ios::floatfield);
+	}
+
+	os << std::setprecision(_num_precision)
+		<< name() << " = " << std::setw(_num_width) << mean()
+		<< " +- " << std::setw(_num_width) << stddev() << " " << unit() << " "
+		<< "(" << std::setw(_num_width) << min()
+		<< " to " << std::setw(_num_width) << max() << " " << unit() << ")";
 
 	return os.str();
+}
+
+void StatBox::set_format(int format_width_, int format_precision_)
+{
+	_num_width = format_width_;
+	_num_precision = format_precision_;
 }
 
 void StatBox::calc_min_max()
