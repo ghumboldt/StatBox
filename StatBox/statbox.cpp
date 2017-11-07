@@ -124,10 +124,11 @@ std::string StatBox::get_string()
 	ss.setf(ios::fixed, ios::floatfield);
 
 	ss << std::setprecision(_numeric_precision)
-		<< get_name() << " = " << std::setw(_numeric_width) << get_mean()
+		<< get_name() << ": " << std::setw(_numeric_width) << get_mean()
 		<< " +- " << std::setw(_numeric_width) << get_std() << " " << get_unit() << " "
 		<< "(" << std::setw(_numeric_width) << get_min()
-		<< " to " << std::setw(_numeric_width) << get_max() << " " << get_unit() << ")";
+		<< " to " << std::setw(_numeric_width) << get_max() << " " << get_unit() << ")"
+		<< ", used " << get_valid_values() << " samples";
 
 	return ss.str();
 }
