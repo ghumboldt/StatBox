@@ -19,6 +19,9 @@ StatBox::StatBox(std::string name_, std::string unit_, size_t capacity_)
 	_min = 0.0;
 	_max = 0.0;
 
+	_num_width = 0;
+	_num_precision = 0;
+
 	_elems.reserve(_capacity);
 }
 
@@ -55,7 +58,7 @@ double StatBox::get_mean()
 {
 	if (!_is_mean_valid)
 	{
-		double sum		= std::accumulate(std::cbegin(_elems), std::cend(_elems), 0.0);
+		double sum		= std::accumulate(_elems.cbegin(), _elems.cend(), 0.0);
 		
 		_mean			= sum / get_num_values();
 		_is_mean_valid	= true;
@@ -74,7 +77,7 @@ double StatBox::get_std()
 	double m = get_mean();
 	double accum = 0.0;
 
-	std::for_each(std::cbegin(_elems), std::cend(_elems), [&](const double d)
+	std::for_each(_elems.cbegin(), _elems.cend(), [&](const double d)
 	{
 		accum += (d - m)*(d - m);
 	});
@@ -102,20 +105,15 @@ std::string StatBox::get_unit() { return _unit; }
 
 std::string StatBox::get_string()
 {
-	ostringstream os;
+	stringstream ss;
 
-	if (_num_precision != 0 && _num_width != 0)
-	{
-		os.setf(ios::fixed, ios::floatfield);
-	}
-
-	os << std::setprecision(_num_precision)
+	ss << std::setprecision(_num_precision)
 		<< get_name() << " = " << std::setw(_num_width) << get_mean()
 		<< " +- " << std::setw(_num_width) << get_std() << " " << get_unit() << " "
 		<< "(" << std::setw(_num_width) << get_min()
 		<< " to " << std::setw(_num_width) << get_max() << " " << get_unit() << ")";
 
-	return os.str();
+	return ss.str();
 }
 
 void StatBox::set_format(int format_width_, int format_precision_)
@@ -128,7 +126,7 @@ void StatBox::calc_min_max()
 {
 	if (!_is_min_max_valid)
 	{
-		auto result = std::minmax_element(_elems.begin(), _elems.end());
+		auto result = std::minmax_element(_elems.cbegin(), _elems.cend());
 
 		_min = *result.first;
 		_max = *result.second;
