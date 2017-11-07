@@ -121,6 +121,8 @@ std::string StatBox::get_string()
 {
 	stringstream ss;
 
+	ss.setf(ios::fixed, ios::floatfield);
+
 	ss << std::setprecision(_numeric_precision)
 		<< get_name() << " = " << std::setw(_numeric_width) << get_mean()
 		<< " +- " << std::setw(_numeric_width) << get_std() << " " << get_unit() << " "
