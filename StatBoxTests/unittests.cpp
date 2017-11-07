@@ -2,6 +2,7 @@
 #include "CppUnitTest.h"
 
 #include "StatBox.h"
+#include <math.h>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -17,7 +18,7 @@ namespace StatBoxTests
 
 			Assert::AreEqual(DEFAULT_NAME, stats.get_name().c_str());
 			Assert::AreEqual(DEFAULT_UNIT, stats.get_unit().c_str());
-			Assert::AreEqual(size_t(0), stats.get_num_values());
+			Assert::AreEqual(size_t(0), stats.get_valid_values());
 		}
 
 		TEST_METHOD(TestConstructorWithName)
@@ -26,7 +27,7 @@ namespace StatBoxTests
 
 			Assert::AreEqual("Temperature", stats.get_name().c_str());
 			Assert::AreEqual(DEFAULT_UNIT, stats.get_unit().c_str());
-			Assert::AreEqual(size_t(0), stats.get_num_values());
+			Assert::AreEqual(size_t(0), stats.get_valid_values());
 		}
 
 		TEST_METHOD(TestConstructorWithNameAndUnit)
@@ -36,7 +37,75 @@ namespace StatBoxTests
 
 			Assert::AreEqual("Temperature", stats.get_name().c_str());
 			Assert::AreEqual("Kelvin", stats.get_unit().c_str());
-			Assert::AreEqual(size_t(1), stats.get_num_values());
+			Assert::AreEqual(size_t(1), stats.get_valid_values());
+		}
+
+		TEST_METHOD(TestConstructorWithCapacity)
+		{
+			StatBox stats = StatBox("Temperature", "Kelvin", 15);
+
+			for (int k = 0; k < 20; k++) // push 20 but capacity is 15
+			{
+				stats.push(42.0);
+			}
+
+			Assert::AreEqual(size_t(15), stats.get_valid_values());
+
+			stats.reset();
+			Assert::AreEqual(size_t(0), stats.get_valid_values());
+		}
+
+		TEST_METHOD(TestConstructorWithDrop)
+		{
+			StatBox stats = StatBox("Temperature", "Kelvin", 15, 5);
+
+			for (int k = 0; k < 5; k++) // push 5 which should get dropped
+			{
+				stats.push(42.0);
+			}
+
+			Assert::AreEqual(size_t(0), stats.get_valid_values());
+
+			stats.push(17.0); // first value not dropped?
+
+			Assert::AreEqual(size_t(1), stats.get_valid_values());
+			Assert::AreEqual(17.0, stats.get_min());
+			Assert::AreEqual(17.0, stats.get_max());
+			Assert::AreEqual(17.0, stats.get_mean());
+			Assert::AreEqual(0.0, stats.get_std());
+
+			stats.push(19.0); // second value not dropped?
+
+			Assert::AreEqual(size_t(2), stats.get_valid_values());
+			Assert::AreEqual(17.0, stats.get_min());
+			Assert::AreEqual(19.0, stats.get_max());
+			Assert::AreEqual(18.0, stats.get_mean());
+			Assert::AreEqual(sqrt(2.0), stats.get_std());
+
+			stats.reset(); // ensure same behaviour after reset
+
+			for (int k = 0; k < 5; k++) // push 5 which should get dropped
+			{
+				stats.push(42.0);
+			}
+
+			Assert::AreEqual(size_t(0), stats.get_valid_values());
+
+			stats.push(17.0); // first value not dropped?
+
+			Assert::AreEqual(size_t(1), stats.get_valid_values());
+			Assert::AreEqual(17.0, stats.get_min());
+			Assert::AreEqual(17.0, stats.get_max());
+			Assert::AreEqual(17.0, stats.get_mean());
+			Assert::AreEqual(0.0, stats.get_std());
+
+			stats.push(19.0); // second value not dropped?
+
+			Assert::AreEqual(size_t(2), stats.get_valid_values());
+			Assert::AreEqual(17.0, stats.get_min());
+			Assert::AreEqual(19.0, stats.get_max());
+			Assert::AreEqual(18.0, stats.get_mean());
+			Assert::AreEqual(sqrt(2.0), stats.get_std());
 		}
 
 		TEST_METHOD(TestToString)
@@ -108,30 +177,30 @@ namespace StatBoxTests
 		{
 			auto stats = StatBox("MyValue", "", 3);
 
-			Assert::AreEqual(size_t(0), stats.get_num_values());
+			Assert::AreEqual(size_t(0), stats.get_valid_values());
 
 			stats.push(3.14);
-			Assert::AreEqual(size_t(1), stats.get_num_values());
+			Assert::AreEqual(size_t(1), stats.get_valid_values());
 			Assert::AreEqual(3.14, stats.get_last_value());
 
 			stats.push(4.14);
-			Assert::AreEqual(size_t(2), stats.get_num_values());
+			Assert::AreEqual(size_t(2), stats.get_valid_values());
 			Assert::AreEqual(4.14, stats.get_last_value());
 
 			stats.push(5.14);
-			Assert::AreEqual(size_t(3), stats.get_num_values());
+			Assert::AreEqual(size_t(3), stats.get_valid_values());
 			Assert::AreEqual(5.14, stats.get_last_value());
 
 			stats.push(6.14);
-			Assert::AreEqual(size_t(3), stats.get_num_values());
+			Assert::AreEqual(size_t(3), stats.get_valid_values());
 			Assert::AreEqual(6.14, stats.get_last_value());
 
 			stats.push(7.14);
-			Assert::AreEqual(size_t(3), stats.get_num_values());
+			Assert::AreEqual(size_t(3), stats.get_valid_values());
 			Assert::AreEqual(7.14, stats.get_last_value());
 
 			stats.reset();
-			Assert::AreEqual(size_t(0), stats.get_num_values());
+			Assert::AreEqual(size_t(0), stats.get_valid_values());
 		}
 	};
 }
