@@ -6,15 +6,15 @@ StatBox::StatBox(std::string name_, std::string unit_, size_t capacity_, int val
 	_unit = unit_;
 	_values_capacity = capacity_;
 
-	_is_mean_valid = false;
-	_is_min_max_valid = false;
+	_is_cache_mean_valid = false;
+	_is_cache_min_max_valid = false;
 
 	_values_to_drop = values_to_drop_;
 	_values_dropped = 0;
 
-	_mean = 0.0;
-	_min = 0.0;
-	_max = 0.0;
+	_cached_mean = 0.0;
+	_cached_min = 0.0;
+	_cached_max = 0.0;
 
 	_numeric_width = 0;
 	_numeric_precision = 0;
@@ -26,10 +26,10 @@ StatBox::~StatBox()
 {
 }
 
-void StatBox::push(double const & elem)
+void StatBox::push(double value)
 {
-	_is_mean_valid = false;
-	_is_min_max_valid = false; 
+	_is_cache_mean_valid = false;
+	_is_cache_min_max_valid = false; 
 
 	if (_values_dropped >= _values_to_drop)
 	{
@@ -38,7 +38,7 @@ void StatBox::push(double const & elem)
 			_values.erase(_values.begin());
 		}
 
-		_values.push_back(elem);
+		_values.push_back(value);
 	}
 	else
 	{
@@ -51,8 +51,8 @@ void StatBox::reset()
 {
 	_values.clear();
 	_values_dropped = 0;
-	_is_mean_valid = false;
-	_is_min_max_valid = false;
+	_is_cache_mean_valid = false;
+	_is_cache_min_max_valid = false;
 }
 
 double StatBox::get_last_value() const
@@ -60,20 +60,20 @@ double StatBox::get_last_value() const
 	return _values.back();
 }
 
-double StatBox::get_mean()
+double StatBox::get_mean() const
 {
-	if (!_is_mean_valid)
+	if (!_is_cache_mean_valid)
 	{
 		const double sum = std::accumulate(_values.cbegin(), _values.cend(), 0.0);
 		
-		_mean			= sum / get_valid_values();
-		_is_mean_valid	= true;
+		_cached_mean			= sum / get_valid_values();
+		_is_cache_mean_valid	= true;
 	}
 
-	return _mean;
+	return _cached_mean;
 }
 
-double StatBox::get_std() 
+double StatBox::get_std() const
 {
 	if (get_valid_values() <= 1)
 	{
@@ -91,16 +91,16 @@ double StatBox::get_std()
 	return sqrt( accum / static_cast<double>(get_valid_values()-1) );
 }
 
-double StatBox::get_min()
+double StatBox::get_min() const
 {
-	calc_min_max();
-	return _min;
+	cache_min_max();
+	return _cached_min;
 }
 
-double StatBox::get_max()
+double StatBox::get_max() const
 {
-	calc_min_max();
-	return _max;
+	cache_min_max();
+	return _cached_max;
 }
 
 size_t StatBox::get_valid_values() const { return _values.size(); }
@@ -109,7 +109,7 @@ std::string StatBox::get_name() const { return _name; }
 
 std::string StatBox::get_unit() const { return _unit; }
 
-std::string StatBox::get_string() 
+std::string StatBox::get_string() const
 {
 	std::stringstream ss;
 
@@ -131,15 +131,15 @@ void StatBox::set_format(int format_width_, int format_precision_)
 	_numeric_precision = format_precision_;
 }
 
-void StatBox::calc_min_max()
+void StatBox::cache_min_max() const
 {
-	if (!_is_min_max_valid)
+	if (!_is_cache_min_max_valid)
 	{
 		auto result = std::minmax_element(_values.cbegin(), _values.cend());
 
-		_min = *result.first;
-		_max = *result.second;
+		_cached_min = *result.first;
+		_cached_max = *result.second;
 
-		_is_min_max_valid = true;
+		_is_cache_min_max_valid = true;
 	}
 }
