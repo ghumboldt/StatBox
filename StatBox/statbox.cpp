@@ -72,7 +72,7 @@ double StatBox::get_mean()
 {
 	if (!_is_mean_valid)
 	{
-		double sum		= std::accumulate(_values.cbegin(), _values.cend(), 0.0);
+		const double sum = std::accumulate(_values.cbegin(), _values.cend(), 0.0);
 		
 		_mean			= sum / get_valid_values();
 		_is_mean_valid	= true;
@@ -96,7 +96,7 @@ double StatBox::get_std()
 		accum += (d - m)*(d - m);
 	});
 
-	return sqrt( accum / double(get_valid_values()-1) );
+	return sqrt( accum / static_cast<double>(get_valid_values()-1) );
 }
 
 double StatBox::get_min()
