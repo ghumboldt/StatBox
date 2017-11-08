@@ -1,13 +1,5 @@
 #include "statbox.h"
 
-StatBox::StatBox() : StatBox(DEFAULT_NAME, DEFAULT_UNIT, DEFAULT_CAPACITY, 0) {}
-
-StatBox::StatBox(std::string name_) : StatBox(name_, DEFAULT_UNIT, DEFAULT_CAPACITY, 0) {}
-
-StatBox::StatBox(std::string name_, std::string unit_) : StatBox(name_, unit_, DEFAULT_CAPACITY, 0) {}
-
-StatBox::StatBox(std::string name_, std::string unit_, size_t capacity_) : StatBox(name_, unit_, capacity_, 0) {}
-
 StatBox::StatBox(std::string name_, std::string unit_, size_t capacity_, int values_to_drop_)
 {
 	_name = name_;
@@ -63,7 +55,7 @@ void StatBox::reset()
 	_is_min_max_valid = false;
 }
 
-double StatBox::get_last_value()
+double StatBox::get_last_value() const
 {
 	return _values.back();
 }
@@ -81,7 +73,7 @@ double StatBox::get_mean()
 	return _mean;
 }
 
-double StatBox::get_std()
+double StatBox::get_std() 
 {
 	if (get_valid_values() <= 1)
 	{
@@ -111,17 +103,17 @@ double StatBox::get_max()
 	return _max;
 }
 
-size_t StatBox::get_valid_values() { return _values.size(); }
+size_t StatBox::get_valid_values() const { return _values.size(); }
 
-std::string StatBox::get_name() { return _name; }
+std::string StatBox::get_name() const { return _name; }
 
-std::string StatBox::get_unit() { return _unit; }
+std::string StatBox::get_unit() const { return _unit; }
 
-std::string StatBox::get_string()
+std::string StatBox::get_string() 
 {
-	stringstream ss;
+	std::stringstream ss;
 
-	ss.setf(ios::fixed, ios::floatfield);
+	ss.setf(std::ios::fixed, std::ios::floatfield);
 
 	ss << std::setprecision(_numeric_precision)
 		<< get_name() << ": " << std::setw(_numeric_width) << get_mean()
@@ -151,6 +143,3 @@ void StatBox::calc_min_max()
 		_is_min_max_valid = true;
 	}
 }
-
-
-

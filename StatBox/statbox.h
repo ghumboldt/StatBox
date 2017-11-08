@@ -12,19 +12,13 @@
 #define DEFAULT_NAME "Value"
 #define DEFAULT_UNIT ""
 
-using namespace std;
-
 class StatBox
 {
 public:
 
-	// Constructors
+	// Constructor
 
-	StatBox();
-	StatBox(std::string name_);
-	StatBox(std::string name_, std::string unit_);
-	StatBox(std::string name_, std::string unit_, size_t capacity_);
-	StatBox(std::string name_, std::string unit_, size_t capacity_, int values_to_drop_);
+	StatBox(std::string name_ = DEFAULT_NAME, std::string unit_ = DEFAULT_UNIT, size_t capacity_ = DEFAULT_CAPACITY, int values_to_drop_ = 0);
 	~StatBox();
 
 	// Methods
@@ -34,15 +28,15 @@ public:
 
 	// Getters
 
-	double get_last_value();
+	double get_last_value() const;
 	double get_mean();
 	double get_std();
 	double get_min();
 	double get_max();
-	size_t get_valid_values();
+	size_t get_valid_values() const;
 	std::string get_string();
-	std::string get_name();
-	std::string get_unit();
+	std::string get_name() const;
+	std::string get_unit() const;
 
 	// Setters
 
