@@ -33,7 +33,7 @@ void StatBox::push(double value)
 
 	if (_values_dropped >= _values_to_drop)
 	{
-		if (get_valid_values() >= _values_capacity)
+		if (get_sample_size() >= _values_capacity)
 		{
 			_values.erase(_values.begin());
 		}
@@ -55,27 +55,37 @@ void StatBox::reset()
 	_is_cache_min_max_valid = false;
 }
 
+bool StatBox::has_stats() const
+{
+	return get_sample_size() > 0;
+}
+
 double StatBox::get_last_value() const
 {
+	if (!has_stats()) { return 0.0; }
+
 	return _values.back();
 }
 
 double StatBox::get_mean() const
 {
+	if (!has_stats()) { return 0.0; }
+
 	if (!_is_cache_mean_valid)
 	{
 		const double sum = std::accumulate(_values.cbegin(), _values.cend(), 0.0);
-		
-		_cached_mean			= sum / get_valid_values();
-		_is_cache_mean_valid	= true;
+
+		_cached_mean = sum / get_sample_size();
+		_is_cache_mean_valid = true;
 	}
 
 	return _cached_mean;
+
 }
 
 double StatBox::get_std() const
 {
-	if (get_valid_values() <= 1)
+	if (get_sample_size() <= 1)
 	{
 		return 0.0;
 	}
@@ -88,22 +98,26 @@ double StatBox::get_std() const
 		accum += (d - m)*(d - m);
 	});
 
-	return sqrt( accum / static_cast<double>(get_valid_values()-1) );
+	return sqrt( accum / static_cast<double>(get_sample_size()-1) );
 }
 
 double StatBox::get_min() const
 {
-	cache_min_max();
+	if (!has_stats()) { return 0.0; }
+
+	_cache_min_max();
 	return _cached_min;
 }
 
 double StatBox::get_max() const
 {
-	cache_min_max();
+	if (!has_stats()) { return 0.0; }
+
+	_cache_min_max();
 	return _cached_max;
 }
 
-size_t StatBox::get_valid_values() const { return _values.size(); }
+size_t StatBox::get_sample_size() const { return _values.size(); }
 
 std::string StatBox::get_name() const { return _name; }
 
@@ -111,6 +125,8 @@ std::string StatBox::get_unit() const { return _unit; }
 
 std::string StatBox::get_string() const
 {
+	if (!has_stats()) { return NO_STATS_STRING; }
+
 	std::stringstream ss;
 
 	ss.setf(std::ios::fixed, std::ios::floatfield);
@@ -120,7 +136,7 @@ std::string StatBox::get_string() const
 		<< " +- " << std::setw(_numeric_width) << get_std() << " " << get_unit() << " "
 		<< "(" << std::setw(_numeric_width) << get_min()
 		<< " to " << std::setw(_numeric_width) << get_max() << " " << get_unit() << ")"
-		<< ", used " << get_valid_values() << " samples";
+		<< ", used " << get_sample_size() << " samples";
 
 	return ss.str();
 }
@@ -131,7 +147,7 @@ void StatBox::set_format(int format_width_, int format_precision_)
 	_numeric_precision = format_precision_;
 }
 
-void StatBox::cache_min_max() const
+void StatBox::_cache_min_max() const
 {
 	if (!_is_cache_min_max_valid)
 	{
@@ -143,3 +159,4 @@ void StatBox::cache_min_max() const
 		_is_cache_min_max_valid = true;
 	}
 }
+

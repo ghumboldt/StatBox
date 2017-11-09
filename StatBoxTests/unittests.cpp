@@ -12,13 +12,105 @@ namespace StatBoxTests
 	{
 	public:
 
+		TEST_METHOD(TestNoStatsAnswers1)
+		{
+			auto stats = StatBox();
+
+			Assert::AreEqual(0.0, stats.get_last_value());
+			Assert::AreEqual(0.0, stats.get_min());
+			Assert::AreEqual(0.0, stats.get_max());
+			Assert::AreEqual(0.0, stats.get_mean());
+			Assert::AreEqual(0.0, stats.get_std());
+			Assert::AreEqual(std::string{ NO_STATS_STRING }, stats.get_string());
+
+			Assert::AreEqual(static_cast<size_t>(0), stats.get_sample_size());
+		}
+
+		TEST_METHOD(TestNoStatsAnswers2)
+		{
+			auto stats = StatBox("Value", "", 100, 1);
+
+			Assert::AreEqual(0.0, stats.get_last_value());
+			Assert::AreEqual(0.0, stats.get_min());
+			Assert::AreEqual(0.0, stats.get_max());
+			Assert::AreEqual(0.0, stats.get_mean());
+			Assert::AreEqual(0.0, stats.get_std());
+			Assert::AreEqual(std::string{ NO_STATS_STRING }, stats.get_string());
+
+			stats.push(5.0);
+
+			Assert::AreEqual(0.0, stats.get_last_value());
+			Assert::AreEqual(0.0, stats.get_min());
+			Assert::AreEqual(0.0, stats.get_max());
+			Assert::AreEqual(0.0, stats.get_mean());
+			Assert::AreEqual(0.0, stats.get_std());
+			Assert::AreEqual(std::string{ NO_STATS_STRING }, stats.get_string());
+
+			stats.push(6.0);
+
+			Assert::AreNotEqual(0.0, stats.get_last_value());
+			Assert::AreNotEqual(0.0, stats.get_min());
+			Assert::AreNotEqual(0.0, stats.get_max());
+			Assert::AreNotEqual(0.0, stats.get_mean());
+			Assert::AreNotEqual(std::string{ NO_STATS_STRING }, stats.get_string());
+
+			stats.push(7.0);
+			Assert::AreNotEqual(0.0, stats.get_std());
+		}
+
+
+		TEST_METHOD(TestHasStats1)
+		{
+			auto stats = StatBox();
+			Assert::AreEqual(false, stats.has_stats());
+
+			stats.push(5.0);
+			Assert::AreEqual(true, stats.has_stats());
+
+			stats.reset();
+			Assert::AreEqual(false, stats.has_stats());
+		}
+
+		TEST_METHOD(TestHasStats2)
+		{
+			auto stats = StatBox("Value", "", 100, 1);
+			Assert::AreEqual(false, stats.has_stats());
+
+			stats.push(5.0);
+			Assert::AreEqual(false, stats.has_stats());
+
+			stats.push(6.0);
+			Assert::AreEqual(true, stats.has_stats());
+
+			stats.reset();
+			Assert::AreEqual(false, stats.has_stats());
+		}
+
+		TEST_METHOD(TestHasStats3)
+		{
+			auto stats = StatBox("Value", "", 100, 2);
+			Assert::AreEqual(false, stats.has_stats());
+
+			stats.push(5.0);
+			Assert::AreEqual(false, stats.has_stats());
+
+			stats.push(6.0);
+			Assert::AreEqual(false, stats.has_stats());
+
+			stats.push(7.0);
+			Assert::AreEqual(true, stats.has_stats());
+
+			stats.reset();
+			Assert::AreEqual(false, stats.has_stats());
+		}
+
 		TEST_METHOD(TestEmptyConstructor)
 		{
 			auto stats = StatBox();
 
 			Assert::AreEqual(DEFAULT_NAME, stats.get_name().c_str());
 			Assert::AreEqual(DEFAULT_UNIT, stats.get_unit().c_str());
-			Assert::AreEqual(size_t(0), stats.get_valid_values());
+			Assert::AreEqual(size_t(0), stats.get_sample_size());
 		}
 
 		TEST_METHOD(TestConstructorWithName)
@@ -27,7 +119,7 @@ namespace StatBoxTests
 
 			Assert::AreEqual("Temperature", stats.get_name().c_str());
 			Assert::AreEqual(DEFAULT_UNIT, stats.get_unit().c_str());
-			Assert::AreEqual(size_t(0), stats.get_valid_values());
+			Assert::AreEqual(size_t(0), stats.get_sample_size());
 		}
 
 		TEST_METHOD(TestConstructorWithNameAndUnit)
@@ -37,7 +129,7 @@ namespace StatBoxTests
 
 			Assert::AreEqual("Temperature", stats.get_name().c_str());
 			Assert::AreEqual("Kelvin", stats.get_unit().c_str());
-			Assert::AreEqual(size_t(1), stats.get_valid_values());
+			Assert::AreEqual(size_t(1), stats.get_sample_size());
 		}
 
 		TEST_METHOD(TestConstructorWithCapacity)
@@ -49,10 +141,10 @@ namespace StatBoxTests
 				stats.push(42.0);
 			}
 
-			Assert::AreEqual(size_t(15), stats.get_valid_values());
+			Assert::AreEqual(size_t(15), stats.get_sample_size());
 
 			stats.reset();
-			Assert::AreEqual(size_t(0), stats.get_valid_values());
+			Assert::AreEqual(size_t(0), stats.get_sample_size());
 		}
 
 		TEST_METHOD(TestConstructorWithDrop)
@@ -64,11 +156,11 @@ namespace StatBoxTests
 				stats.push(42.0);
 			}
 
-			Assert::AreEqual(size_t(0), stats.get_valid_values());
+			Assert::AreEqual(size_t(0), stats.get_sample_size());
 
 			stats.push(17.0); // first value not dropped?
 
-			Assert::AreEqual(size_t(1), stats.get_valid_values());
+			Assert::AreEqual(size_t(1), stats.get_sample_size());
 			Assert::AreEqual(17.0, stats.get_min());
 			Assert::AreEqual(17.0, stats.get_max());
 			Assert::AreEqual(17.0, stats.get_mean());
@@ -76,7 +168,7 @@ namespace StatBoxTests
 
 			stats.push(19.0); // second value not dropped?
 
-			Assert::AreEqual(size_t(2), stats.get_valid_values());
+			Assert::AreEqual(size_t(2), stats.get_sample_size());
 			Assert::AreEqual(17.0, stats.get_min());
 			Assert::AreEqual(19.0, stats.get_max());
 			Assert::AreEqual(18.0, stats.get_mean());
@@ -89,11 +181,11 @@ namespace StatBoxTests
 				stats.push(42.0);
 			}
 
-			Assert::AreEqual(size_t(0), stats.get_valid_values());
+			Assert::AreEqual(size_t(0), stats.get_sample_size());
 
 			stats.push(17.0); // first value not dropped?
 
-			Assert::AreEqual(size_t(1), stats.get_valid_values());
+			Assert::AreEqual(size_t(1), stats.get_sample_size());
 			Assert::AreEqual(17.0, stats.get_min());
 			Assert::AreEqual(17.0, stats.get_max());
 			Assert::AreEqual(17.0, stats.get_mean());
@@ -101,7 +193,7 @@ namespace StatBoxTests
 
 			stats.push(19.0); // second value not dropped?
 
-			Assert::AreEqual(size_t(2), stats.get_valid_values());
+			Assert::AreEqual(size_t(2), stats.get_sample_size());
 			Assert::AreEqual(17.0, stats.get_min());
 			Assert::AreEqual(19.0, stats.get_max());
 			Assert::AreEqual(18.0, stats.get_mean());
@@ -177,30 +269,30 @@ namespace StatBoxTests
 		{
 			auto stats = StatBox("MyValue", "", 3);
 
-			Assert::AreEqual(size_t(0), stats.get_valid_values());
+			Assert::AreEqual(size_t(0), stats.get_sample_size());
 
 			stats.push(3.14);
-			Assert::AreEqual(size_t(1), stats.get_valid_values());
+			Assert::AreEqual(size_t(1), stats.get_sample_size());
 			Assert::AreEqual(3.14, stats.get_last_value());
 
 			stats.push(4.14);
-			Assert::AreEqual(size_t(2), stats.get_valid_values());
+			Assert::AreEqual(size_t(2), stats.get_sample_size());
 			Assert::AreEqual(4.14, stats.get_last_value());
 
 			stats.push(5.14);
-			Assert::AreEqual(size_t(3), stats.get_valid_values());
+			Assert::AreEqual(size_t(3), stats.get_sample_size());
 			Assert::AreEqual(5.14, stats.get_last_value());
 
 			stats.push(6.14);
-			Assert::AreEqual(size_t(3), stats.get_valid_values());
+			Assert::AreEqual(size_t(3), stats.get_sample_size());
 			Assert::AreEqual(6.14, stats.get_last_value());
 
 			stats.push(7.14);
-			Assert::AreEqual(size_t(3), stats.get_valid_values());
+			Assert::AreEqual(size_t(3), stats.get_sample_size());
 			Assert::AreEqual(7.14, stats.get_last_value());
 
 			stats.reset();
-			Assert::AreEqual(size_t(0), stats.get_valid_values());
+			Assert::AreEqual(size_t(0), stats.get_sample_size());
 		}
 	};
 }

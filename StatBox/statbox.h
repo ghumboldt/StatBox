@@ -11,6 +11,7 @@
 #define DEFAULT_CAPACITY 100
 #define DEFAULT_NAME "Value"
 #define DEFAULT_UNIT ""
+#define NO_STATS_STRING "No statistics available."
 
 class StatBox
 {
@@ -25,6 +26,7 @@ public:
 
 	void push(double value_);
 	void reset();
+	bool has_stats() const;
 
 	// Getters
 
@@ -33,7 +35,7 @@ public:
 	double get_std() const;
 	double get_min() const;
 	double get_max() const;
-	size_t get_valid_values() const;
+	size_t get_sample_size() const;
 	std::string get_string() const;
 	std::string get_name() const;
 	std::string get_unit() const;
@@ -59,6 +61,6 @@ private:
 	std::string _name;
 	std::string _unit;
 
-	void cache_min_max() const;
+	void _cache_min_max() const;
 };
 
